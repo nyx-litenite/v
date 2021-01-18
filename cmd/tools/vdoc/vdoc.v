@@ -17,6 +17,7 @@ const (
 	vexe            = pref.vexe_path()
 	vroot           = os.dir(vexe)
 	tabs            = ['\t\t', '\t\t\t\t\t\t', '\t\t\t\t\t\t\t']
+	deprecated_text = '[Deprecated]'
 )
 
 enum OutputType {
@@ -98,7 +99,9 @@ fn (vd VDoc) gen_plaintext(d doc.Doc) string {
 	if comments.trim_space().len > 0 && !cfg.pub_only {
 		pw.writeln(comments.split_into_lines().map('    ' + it).join('\n'))
 	}
-	vd.write_plaintext_content(d.contents.arr(), mut pw)
+	mut dcs_contents := d.contents.arr()
+	sort_deprecated(dcs_contents)
+	vd.write_plaintext_content(dcs_contents, mut pw)
 	return pw.str()
 }
 
@@ -106,7 +109,12 @@ fn (vd VDoc) write_plaintext_content(contents []doc.DocNode, mut pw strings.Buil
 	cfg := vd.cfg
 	for cn in contents {
 		if cn.content.len > 0 {
-			pw.writeln(cn.content)
+			pw.write(cn.content)
+			if cn.deprecated {
+				pw.writeln(' $deprecated_text')
+			} else {
+				pw.write('\n')
+			}
 			if cn.comments.len > 0 && !cfg.pub_only {
 				comments := if cfg.include_examples {
 					cn.merge_comments()

@@ -143,3 +143,19 @@ fn gen_footer_text(d &doc.Doc, include_timestamp bool) string {
 	time_str := '$generated_time.day $generated_time.smonth() $generated_time.year $generated_time.hhmmss()'
 	return '$footer_text Generated on: $time_str'
 }
+
+fn sort_deprecated(mut nodes []doc.DocNode) {
+	mut i := 0
+	mut j := nodes.len - 1
+	// sort deprecated functions to the end
+	for i < j {
+		if nodes[i].deprecated {
+			temp_child := nodes[i]
+			nodes[i] = nodes[j]
+			nodes[j] = temp_child
+			j--
+		} else {
+			i++
+		}
+	}
+}

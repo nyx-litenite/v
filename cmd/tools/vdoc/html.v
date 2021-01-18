@@ -239,12 +239,13 @@ fn (vd VDoc) gen_html(d doc.Doc) string {
 	mut symbols_toc := strings.new_builder(200)
 	mut modules_toc := strings.new_builder(200)
 	mut contents := strings.new_builder(200)
-	dcs_contents := d.contents.arr()
+	mut dcs_contents := d.contents.arr()
 	// generate toc first
 	contents.writeln(doc_node_html(d.head, '', true, cfg.include_examples, d.table))
 	if is_module_readme(d.head) {
 		write_toc(d.head, mut symbols_toc)
 	}
+	sort_deprecated(dcs_contents)
 	for cn in dcs_contents {
 		vd.write_content(&cn, &d, mut contents)
 		write_toc(cn, mut symbols_toc)
@@ -455,7 +456,11 @@ fn doc_node_html(dn doc.DocNode, link string, head bool, include_examples bool, 
 		if dn.kind == .const_group {
 			dnw.write('${tabs[2]}<div class="title"><$head_tag>$sym_name$hash_link</$head_tag>')
 		} else {
-			dnw.write('${tabs[2]}<div class="title"><$head_tag>$dn.kind $sym_name$hash_link</$head_tag>')
+			mut notice_text := ''
+			if dn.deprecated {
+				notice_text = ' <small>$deprecated_text</small>'
+			}
+			dnw.write('${tabs[2]}<div class="title"><$head_tag>$dn.kind $sym_name$hash_link$notice_text</$head_tag>')
 		}
 		if link.len != 0 {
 			dnw.write('<a class="link" rel="noreferrer" target="_blank" href="$link">$link_svg</a>')

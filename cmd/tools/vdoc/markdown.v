@@ -22,7 +22,9 @@ fn (vd VDoc) gen_markdown(d doc.Doc, with_toc bool) string {
 	if with_toc {
 		hw.writeln('## Contents')
 	}
-	vd.write_markdown_content(d.contents.arr(), mut cw, mut hw, 0, with_toc)
+	mut dcs_contents := d.contents.arr()
+	sort_deprecated(dcs_contents)
+	vd.write_markdown_content(dcs_contents, mut cw, mut hw, 0, with_toc)
 	footer_text := gen_footer_text(d, !vd.cfg.no_timestamp)
 	cw.writeln('#### $footer_text')
 	return hw.str() + '\n' + cw.str()
@@ -32,7 +34,11 @@ fn (vd VDoc) write_markdown_content(contents []doc.DocNode, mut cw strings.Build
 	for cn in contents {
 		if with_toc && cn.name.len > 0 {
 			hw.writeln(' '.repeat(2 * indent) + '- [#$cn.name](${slug(cn.name)})')
-			cw.writeln('## $cn.name')
+			if cn.deprecated {
+				cw.writeln('## $cn.name $deprecated_text')
+			} else {
+				cw.writeln('## $cn.name')
+			}
 		}
 		if cn.content.len > 0 {
 			comments := cn.merge_comments_without_examples()
