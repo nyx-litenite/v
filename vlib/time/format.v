@@ -117,7 +117,7 @@ pub fn (t Time) get_fmt_date_str(fmt_dlmtr FormatDelimiter, fmt_date FormatDate)
 	if fmt_date == .no_date {
 		return ''
 	}
-	month := '$t.smonth()'
+	month := '$t.month_str()'
 	year := '${(t.year % 100):02d}'
 	mut res := match fmt_date {
 		.ddmmyy { '${t.day:02d}|${t.month:02d}|$year' }
@@ -164,7 +164,7 @@ pub fn (t Time) get_fmt_str(fmt_dlmtr FormatDelimiter, fmt_time FormatTime, fmt_
 // This is just a TEMPORARY function for cookies and their expire dates
 pub fn (t Time) utc_string() string {
 	day_str := t.weekday_str()
-	month_str := t.smonth()
+	month_str := t.month_str()
 	utc_string := '$day_str, $t.day $month_str $t.year ${t.hour:02d}:${t.minute:02d}:${t.second:02d} UTC'
 	return utc_string
 }

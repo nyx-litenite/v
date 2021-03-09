@@ -36,6 +36,8 @@ pub const (
 		31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30 + 31,
 	]
 	long_days          = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+	long_months        = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+		'September', 'October', 'November', 'December']
 )
 
 // Time contains various time units for a point in time.
@@ -136,13 +138,29 @@ pub fn utc() Time {
 	return unix2(int(t), 0)
 }
 
-// smonth returns month name.
-pub fn (t Time) smonth() string {
-	if t.month <= 0 || t.month > 12 {
+pub fn lmonth(month int) string {
+	i := month - 1
+	if i <= 0 || i > 12 {
 		return '---'
 	}
-	i := t.month - 1
+	return time.long_months[i]
+}
+
+pub fn smonth(month int) string {
+	if month <= 0 || month > 12 {
+		return '---'
+	}
+	i := month - 1
 	return time.months_string[i * 3..(i + 1) * 3]
+}
+
+// smonth returns month name.
+pub fn (t Time) month_str() string {
+	return smonth(t.month)
+}
+
+pub fn (t Time) long_month_str() string {
+	return lmonth(t.month)
 }
 
 // new_time returns a time struct with calculated Unix time.
@@ -298,16 +316,24 @@ pub fn (t Time) day_of_week() int {
 	return day_of_week(t.year, t.month, t.day)
 }
 
+pub fn sweekday(day int) string {
+	i := day - 1
+	return time.days_string[i * 3..(i + 1) * 3]
+}
+
+pub fn lweekday(day int) string {
+	i := day - 1
+	return time.long_days[i]
+}
+
 // weekday_str returns the current day as a string.
 pub fn (t Time) weekday_str() string {
-	i := t.day_of_week() - 1
-	return time.days_string[i * 3..(i + 1) * 3]
+	return sweekday(t.day_of_week())
 }
 
 // weekday_str returns the current day as a string.
 pub fn (t Time) long_weekday_str() string {
-	i := t.day_of_week() - 1
-	return time.long_days[i]
+	return lweekday(t.day_of_week())
 }
 
 // ticks returns a number of milliseconds elapsed since system start.
